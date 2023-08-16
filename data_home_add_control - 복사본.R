@@ -130,8 +130,6 @@ mod_home1 = 'W4 =~ 1*HIn11psa010 + a1*HIn11psa029 + a2*HIn11psa031 + a3*HIn11psa
             HCh12psa029 ~ i1*1
             HCh12psa031 ~ i2*1
             HCh12psa039 ~ i3*1
-            
-            HCh12psa010 ~~ HCh12psa029
             '
 
 fit_home1 = sem(model = mod_home1, estimator = "ML", missing = "fiml", 
@@ -171,9 +169,6 @@ mod_home2 = 'W4 =~ 1*HIn11psa010 + a1*HIn11psa029 + a2*HIn11psa031 + a3*HIn11psa
             HCh12psa029 ~ i1*1
             HCh12psa031 ~ i2*1
             HCh12psa039 ~ i3*1
-            
-            HCh12psa010 ~~ HCh12psa029
-            
             '
 fit_home2 = sem(model = mod_home2, estimator = "ML", missing = "FIML", 
                 data = KCR_el, meanstructure = T)
@@ -212,9 +207,6 @@ mod_home3 = 'W4 =~ 1*HIn11psa010 + a1*HIn11psa029 + a2*HIn11psa031 + a3*HIn11psa
             HCh12psa029 ~ i1*1
             HCh12psa031 ~ i2*1
             HCh12psa039 ~ i3*1
-            
-            HCh12psa010 ~~ HCh12psa029
-            
             '
 fit_home3 = sem(model = mod_home3, estimator = "ML", missing = "fiml", 
                 data = KCR_el2, meanstructure = T)
