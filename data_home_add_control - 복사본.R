@@ -66,7 +66,7 @@ KCR_home %>%
                                      "ECh10tmp016", "ECh10tmp018", "ECh10tmp020")],na.rm=T)) -> KCR_atmp
 
 # 성별 코드 변경 female=1, male=0
-KCR_atmp2[, "DCh10dmg001"] = KCR_atmp2[, "DCh10dmg001"] - 1 
+KCR_atmp[, "DCh10dmg001"] = KCR_atmp[, "DCh10dmg001"] - 1 
 
 
 #time
@@ -133,7 +133,7 @@ mod_home1 = 'W4 =~ 1*HIn11psa010 + a1*HIn11psa029 + a2*HIn11psa031 + a3*HIn11psa
             '
 
 fit_home1 = sem(model = mod_home1, estimator = "ML", missing = "fiml", 
-               data = KCR_el, meanstructure = T)
+               data = KCR_atmp2, meanstructure = T)
 summary(fit_home1, fit.measures = T, standardized = T)
 semPaths(fit_home1, what = 'est', style = 'lisrel')
 
@@ -171,7 +171,7 @@ mod_home2 = 'W4 =~ 1*HIn11psa010 + a1*HIn11psa029 + a2*HIn11psa031 + a3*HIn11psa
             HCh12psa039 ~ i3*1
             '
 fit_home2 = sem(model = mod_home2, estimator = "ML", missing = "FIML", 
-                data = KCR_el, meanstructure = T)
+                data = KCR_atmp2, meanstructure = T)
 summary(fit_home2, fit.measures = T, standardized = T)
 semPaths(fit_home2, what = 'est', style = 'lisrel')
 
@@ -185,7 +185,7 @@ mod_home3 = 'W4 =~ 1*HIn11psa010 + a1*HIn11psa029 + a2*HIn11psa031 + a3*HIn11psa
                   
             D4_5 =~ 1*HCh12psa010 + a1*HCh12psa029 + a2*HCh12psa031 + a3*HCh12psa039
             W4 ~ DCh10dmg001 
-            D4_5 ~ marker + GCh09qst000a
+            D4_5 ~ Ttime + DHu10ses006
             D4_5 ~~ W4
             
             HIn11psa010 ~~ e1*HIn11psa010
@@ -209,8 +209,80 @@ mod_home3 = 'W4 =~ 1*HIn11psa010 + a1*HIn11psa029 + a2*HIn11psa031 + a3*HIn11psa
             HCh12psa039 ~ i3*1
             '
 fit_home3 = sem(model = mod_home3, estimator = "ML", missing = "fiml", 
-                data = KCR_el2, meanstructure = T)
+                data = KCR_atmp2, meanstructure = T)
 
 summary(fit_home3, fit.measures = T, standardized = T)
 
 semPaths(fit_home3, what = 'est', style = 'lisrel')
+
+#last_model_time(h/month) & control_sex & control_SES predict English & temper predict W4
+mod_fin = 'W4 =~ 1*HIn11psa010 + a1*HIn11psa029 + a2*HIn11psa031 + a4*HIn11psa021
+                  + 1*HCh12psa010 + a1*HCh12psa029 + a2*HCh12psa031 + a4*HCh12psa021
+            D4_5 =~ 1*HCh12psa010 + a1*HCh12psa029 + a2*HCh12psa031 + a4*HCh12psa021
+            D4_5 ~ Ttime
+            D4_5 ~~ W4
+            W4 ~ DCh10dmg001 + tmp4
+            Ttime ~ DHu10ses006
+            
+            HIn11psa010 ~~ e1*HIn11psa010
+            HIn11psa029 ~~ e2*HIn11psa029
+            HIn11psa031 ~~ e3*HIn11psa031
+            HIn11psa021 ~~ e5*HIn11psa021
+            HCh12psa010 ~~ e1*HCh12psa010
+            HCh12psa029 ~~ e2*HCh12psa029
+            HCh12psa031 ~~ e3*HCh12psa031
+            HCh12psa021 ~~ e5*HCh12psa021
+            
+            W4 ~ 1
+            D4_5 ~ 1
+            HIn11psa010 ~ 0
+            HIn11psa029 ~ i1*1
+            HIn11psa031 ~ i2*1
+            HIn11psa021 ~ i4*1
+            HCh12psa010 ~ 0
+            HCh12psa029 ~ i1*1
+            HCh12psa031 ~ i2*1
+            HCh12psa021 ~ i4*1
+            '
+
+fit_fin = sem(model = mod_fin, estimator = "ML", missing = "fiml", 
+              data = KCR_atmp2, meanstructure = T)
+summary(fit_fin, fit.measures = T, standardized = T)
+semPaths(fit_fin, what = 'est', style = 'lisrel')
+
+#add_model_time(h/month) & control_sex & control_SES predict English & control_education & temper predict W4
+mod_add = 'W4 =~ 1*HIn11psa010 + a1*HIn11psa029 + a2*HIn11psa031 + a4*HIn11psa021
+                  + 1*HCh12psa010 + a1*HCh12psa029 + a2*HCh12psa031 + a4*HCh12psa021
+            D4_5 =~ 1*HCh12psa010 + a1*HCh12psa029 + a2*HCh12psa031 + a4*HCh12psa021
+            D4_5 ~ Ttime
+            D4_5 ~~ W4
+            W4 ~ DCh10dmg001 + tmp4
+            Ttime ~ DHu10ses006 + DMt10dmg014
+            
+            HIn11psa010 ~~ e1*HIn11psa010
+            HIn11psa029 ~~ e2*HIn11psa029
+            HIn11psa031 ~~ e3*HIn11psa031
+            HIn11psa021 ~~ e5*HIn11psa021
+            HCh12psa010 ~~ e1*HCh12psa010
+            HCh12psa029 ~~ e2*HCh12psa029
+            HCh12psa031 ~~ e3*HCh12psa031
+            HCh12psa021 ~~ e5*HCh12psa021
+            
+            W4 ~ 1
+            D4_5 ~ 1
+            HIn11psa010 ~ 0
+            HIn11psa029 ~ i1*1
+            HIn11psa031 ~ i2*1
+            HIn11psa021 ~ i4*1
+            HCh12psa010 ~ 0
+            HCh12psa029 ~ i1*1
+            HCh12psa031 ~ i2*1
+            HCh12psa021 ~ i4*1
+            
+            HCh12psa010 ~~ HCh12psa029
+            '
+
+fit_add = sem(model = mod_add, estimator = "ML", missing = "fiml", 
+              data = KCR_atmp4, meanstructure = T)
+summary(fit_add, fit.measures = T, standardized = T)
+semPaths(fit_add, what = 'est', style = 'lisrel')
