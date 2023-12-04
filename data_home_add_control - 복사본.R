@@ -221,7 +221,7 @@ mod_fin = 'W4 =~ 1*HIn11psa010 + a1*HIn11psa029 + a2*HIn11psa031 + a4*HIn11psa02
             D4_5 =~ 1*HCh12psa010 + a1*HCh12psa029 + a2*HCh12psa031 + a4*HCh12psa021
             D4_5 ~ Ttime
             D4_5 ~~ W4
-            W4 ~ DCh10dmg001 + tmp4
+            W4 ~ DCh10dmg001
             Ttime ~ DHu10ses006
             
             HIn11psa010 ~~ e1*HIn11psa010
@@ -250,13 +250,13 @@ fit_fin = sem(model = mod_fin, estimator = "ML", missing = "fiml",
 summary(fit_fin, fit.measures = T, standardized = T)
 semPaths(fit_fin, what = 'est', style = 'lisrel')
 
-#add_model_time(h/month) & control_sex & control_SES predict English & control_education & temper predict W4
+#add_model_time(h/month) & control_sex & control_SES predict English & control_education
 mod_add = 'W4 =~ 1*HIn11psa010 + a1*HIn11psa029 + a2*HIn11psa031 + a4*HIn11psa021
                   + 1*HCh12psa010 + a1*HCh12psa029 + a2*HCh12psa031 + a4*HCh12psa021
             D4_5 =~ 1*HCh12psa010 + a1*HCh12psa029 + a2*HCh12psa031 + a4*HCh12psa021
             D4_5 ~ Ttime
             D4_5 ~~ W4
-            W4 ~ DCh10dmg001 + tmp4
+            W4 ~ DCh10dmg001
             Ttime ~ DHu10ses006 + DMt10dmg014
             
             HIn11psa010 ~~ e1*HIn11psa010
@@ -286,3 +286,219 @@ fit_add = sem(model = mod_add, estimator = "ML", missing = "fiml",
               data = KCR_atmp4, meanstructure = T)
 summary(fit_add, fit.measures = T, standardized = T)
 semPaths(fit_add, what = 'est', style = 'lisrel')
+
+#latent change score model_sum score
+{
+# write.csv(KCR_atmp2, 'lcmdd.csv')
+read.csv("lcmdd.csv") -> KCR
+#peer relationship sumscore
+KCR %>% 
+  mutate(W4pr = rowSums(cur_data()[,c("HIn11psa039","HIn11psa031","HIn11psa033",
+                                      "HIn11psa010","HIn11psa021","HIn11psa038","HIn11psa029","HIn11psa036")],na.rm=T)) %>%
+  mutate(W5pr = rowSums(cur_data()[,c("HCh12psa039","HCh12psa021","HCh12psa031",
+                                      "HCh12psa033","HCh12psa010","HCh12psa038","HCh12psa036","HCh12psa029")],na.rm=T)) -> lcmdata
+#lcm1: no predictor
+no.predic.model <- 'W5pr ~ 1*W4pr
+                    d =~ 1*W5pr
+                   '
+fit.no.pre <- sem(model = no.predic.model, estimator="ML", missing = "fiml",
+                  data=lcmdata, meanstructure = T)
+summary(fit.no.pre)
+#lcm2: predictor_language
+step1 <- 'W5pr ~ 1*W4pr
+          d =~ 1*W5pr + W4pr
+          d ~ Ttime
+         '
+fit.step1 <- sem(model=step1, estimator="ML", missing = "fiml",
+                 data=lcmdata, meanstructure = T)
+summary(fit.step1)#n.s.
+
+#add control
+#lcm2: predictor_language
+step3 <- 'W5pr ~ 1*W4pr
+          W4pr ~ DCh10dmg001 + tmp4
+          d =~ 1*W5pr + W4pr
+          d ~ Ttime
+          Ttime ~ DHu10ses006
+         '
+fit.step3 <- sem(model=step1, estimator="ML", missing = "fiml",
+                 data=lcmdata, meanstructure = T)
+summary(fit.step3)#n.s.
+
+KCR_atmp2 %>% 
+  mutate(W4pr = rowSums(cur_data()[,c("HIn11psa039","HIn11psa031","HIn11psa033",
+                                      "HIn11psa010","HIn11psa021")],na.rm=T)) %>%
+  mutate(W5pr = rowSums(cur_data()[,c("HCh12psa039","HCh12psa021","HCh12psa031",
+                                      "HCh12psa033","HCh12psa010")],na.rm=T)) -> lcmdata2
+stept <- 'W5pr ~ 1*W4pr
+          d =~ 1*W5pr
+          d ~ Ttime
+         '
+fit.stept <- sem(model=step1, estimator="ML", missing = "fiml",
+                 data=lcmdata2, meanstructure = T)
+summary(fit.stept)#?!
+}
+#after EFA_change items
+{
+mod_add <- 'W4 =~ 1*HIn11psa010 + a1*HIn11psa021 + a2*HIn11psa031 + a4*HIn11psa033 + a5*HIn11psa039
+                  + 1*HCh12psa010 + a1*HCh12psa021 + a2*HCh12psa031 + a4*HCh12psa033 + a5*HIn11psa039
+            D4_5 =~ 1*HCh12psa010 + a1*HCh12psa021 + a2*HCh12psa031 + a4*HCh12psa033 + a5*HCh12psa039
+            D4_5 ~ Ttime
+            D4_5 ~~ W4
+            W4 ~ DCh10dmg001 + tmp4
+            Ttime ~ DHu10ses006
+            
+            HIn11psa010 ~~ e1*HIn11psa010
+            HIn11psa021 ~~ e2*HIn11psa021
+            HIn11psa031 ~~ e4*HIn11psa031
+            HIn11psa033 ~~ e3*HIn11psa033
+            HIn11psa039 ~~ e5*HIn11psa039
+            HCh12psa010 ~~ e1*HCh12psa010
+            HCh12psa021 ~~ e2*HCh12psa021
+            HCh12psa031 ~~ e4*HCh12psa031
+            HCh12psa033 ~~ e3*HCh12psa033
+            HCh12psa039 ~~ e5*HCh12psa039
+            
+            W4 ~ 1
+            D4_5 ~ 1
+            HIn11psa010 ~ 0
+            HIn11psa021 ~ i1*1
+            HIn11psa031 ~ i2*1
+            HIn11psa033 ~ i3*1
+            HIn11psa039 ~ i4*1
+            HCh12psa010 ~ 0
+            HCh12psa021 ~ i1*1
+            HCh12psa031 ~ i2*1
+            HCh12psa033 ~ i3*1
+            HCh12psa039 ~ i4*1
+            '
+
+fit_add = sem(model = mod_add, estimator = "ML", missing = "fiml", 
+              data = KCR_atmp2, meanstructure = T)
+summary(fit_add, fit.measures = T, standardized = T)
+semPaths(fit_add, what = 'est', style = 'lisrel')
+#add item23
+mod_add2 <- 'W4 =~ 1*HIn11psa010 + a1*HIn11psa021 + a2*HIn11psa031 + a4*HIn11psa033 + a5*HIn11psa039 + a6*HIn11psa023
+                  + 1*HCh12psa010 + a1*HCh12psa021 + a2*HCh12psa031 + a4*HCh12psa033 + a5*HCh12psa039 + a6*HCh12psa023
+            D4_5 =~ 1*HCh12psa010 + a1*HCh12psa021 + a2*HCh12psa031 + a4*HCh12psa033 + a5*HCh12psa039 + a6*HCh12psa023
+            D4_5 ~ Ttime
+            D4_5 ~~ W4
+            W4 ~ DCh10dmg001 + tmp4
+            Ttime ~ DHu10ses006
+            
+            HIn11psa010 ~~ e1*HIn11psa010
+            HIn11psa021 ~~ e2*HIn11psa021
+            HIn11psa031 ~~ e4*HIn11psa031
+            HIn11psa033 ~~ e3*HIn11psa033
+            HIn11psa039 ~~ e5*HIn11psa039
+            HIn11psa023 ~~ e6*HIn11psa023
+            HCh12psa010 ~~ e1*HCh12psa010
+            HCh12psa021 ~~ e2*HCh12psa021
+            HCh12psa031 ~~ e4*HCh12psa031
+            HCh12psa033 ~~ e3*HCh12psa033
+            HCh12psa039 ~~ e5*HCh12psa039
+            HCh12psa023 ~~ e6*HCh12psa023
+            
+            W4 ~ 1
+            D4_5 ~ 1
+            HIn11psa010 ~ 0
+            HIn11psa021 ~ i1*1
+            HIn11psa031 ~ i2*1
+            HIn11psa033 ~ i3*1
+            HIn11psa039 ~ i4*1
+            HIn11psa023 ~ i5*1
+            HCh12psa010 ~ 0
+            HCh12psa021 ~ i1*1
+            HCh12psa031 ~ i2*1
+            HCh12psa033 ~ i3*1
+            HCh12psa039 ~ i4*1
+            HCh12psa023 ~ i5*1
+            '
+
+fit_add2 = sem(model = mod_add2, estimator = "ML", missing = "fiml", 
+              data = KCR_atmp2, meanstructure = T)
+summary(fit_add2, fit.measures = T, standardized = T)
+semPaths(fit_add, what = 'est', style = 'lisrel')
+
+#add item23_except tmp4
+mod_add23 <- 'W4 =~ 1*HIn11psa010 + a1*HIn11psa021 + a2*HIn11psa031 + a4*HIn11psa033 + a5*HIn11psa039 + a6*HIn11psa023
+                  + 1*HCh12psa010 + a1*HCh12psa021 + a2*HCh12psa031 + a4*HCh12psa033 + a5*HCh12psa039 + a6*HCh12psa023
+            D4_5 =~ 1*HCh12psa010 + a1*HCh12psa021 + a2*HCh12psa031 + a4*HCh12psa033 + a5*HCh12psa039 + a6*HCh12psa023
+            D4_5 ~ Ttime
+            D4_5 ~~ W4
+            W4 ~ DCh10dmg001
+            Ttime ~ DHu10ses006
+            
+            HIn11psa010 ~~ e1*HIn11psa010
+            HIn11psa021 ~~ e2*HIn11psa021
+            HIn11psa031 ~~ e4*HIn11psa031
+            HIn11psa033 ~~ e3*HIn11psa033
+            HIn11psa039 ~~ e5*HIn11psa039
+            HIn11psa023 ~~ e6*HIn11psa023
+            HCh12psa010 ~~ e1*HCh12psa010
+            HCh12psa021 ~~ e2*HCh12psa021
+            HCh12psa031 ~~ e4*HCh12psa031
+            HCh12psa033 ~~ e3*HCh12psa033
+            HCh12psa039 ~~ e5*HCh12psa039
+            HCh12psa023 ~~ e6*HCh12psa023
+            
+            W4 ~ 1
+            D4_5 ~ 1
+            HIn11psa010 ~ 0
+            HIn11psa021 ~ i1*1
+            HIn11psa031 ~ i2*1
+            HIn11psa033 ~ i3*1
+            HIn11psa039 ~ i4*1
+            HIn11psa023 ~ i5*1
+            HCh12psa010 ~ 0
+            HCh12psa021 ~ i1*1
+            HCh12psa031 ~ i2*1
+            HCh12psa033 ~ i3*1
+            HCh12psa039 ~ i4*1
+            HCh12psa023 ~ i5*1
+            '
+
+fit_add23 = sem(model = mod_add23, estimator = "ML", missing = "fiml", 
+               data = KCR_atmp2, meanstructure = T)
+summary(fit_add23, fit.measures = T, standardized = T)
+
+#no control
+mod_add.noc <- 'W4 =~ 1*HIn11psa010 + a1*HIn11psa021 + a2*HIn11psa031 + a4*HIn11psa033 + a5*HIn11psa039 + a6*HIn11psa023
+                  + 1*HCh12psa010 + a1*HCh12psa021 + a2*HCh12psa031 + a4*HCh12psa033 + a5*HCh12psa039 + a6*HCh12psa023
+            D4_5 =~ 1*HCh12psa010 + a1*HCh12psa021 + a2*HCh12psa031 + a4*HCh12psa033 + a5*HCh12psa039 + a6*HCh12psa023
+            D4_5 ~ Ttime
+            D4_5 ~~ W4
+
+            HIn11psa010 ~~ e1*HIn11psa010
+            HIn11psa021 ~~ e2*HIn11psa021
+            HIn11psa031 ~~ e4*HIn11psa031
+            HIn11psa033 ~~ e3*HIn11psa033
+            HIn11psa039 ~~ e5*HIn11psa039
+            HIn11psa023 ~~ e6*HIn11psa023
+            HCh12psa010 ~~ e1*HCh12psa010
+            HCh12psa021 ~~ e2*HCh12psa021
+            HCh12psa031 ~~ e4*HCh12psa031
+            HCh12psa033 ~~ e3*HCh12psa033
+            HCh12psa039 ~~ e5*HCh12psa039
+            HCh12psa023 ~~ e6*HCh12psa023
+            
+            W4 ~ 1
+            D4_5 ~ 1
+            HIn11psa010 ~ 0
+            HIn11psa021 ~ i1*1
+            HIn11psa031 ~ i2*1
+            HIn11psa033 ~ i3*1
+            HIn11psa039 ~ i4*1
+            HIn11psa023 ~ i5*1
+            HCh12psa010 ~ 0
+            HCh12psa021 ~ i1*1
+            HCh12psa031 ~ i2*1
+            HCh12psa033 ~ i3*1
+            HCh12psa039 ~ i4*1
+            HCh12psa023 ~ i5*1
+            '
+
+fit_add.noc = sem(model = mod_add.noc, estimator = "ML", missing = "fiml", 
+               data = KCR_atmp2, meanstructure = T)
+summary(fit_add.noc, fit.measures = T, standardized = T)
+}
