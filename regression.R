@@ -57,7 +57,7 @@ read.csv("lcmdd.csv", header=T) -> data
 5 - data2[,"HCh12psa032"] -> data3[,"HCh12psa032"]
 5 - data2[,"HCh12psa035"] -> data3[,"HCh12psa035"]
 }
-data3 %>% mutate(Mean_3=rowSums(cur_data()[,c("HIn11psa010", "HIn11psa021", "HIn11psa027","HIn11psa029","HIn11psa031","HIn11psa033",
+{data3 %>% mutate(Mean_3=rowSums(cur_data()[,c("HIn11psa010", "HIn11psa021", "HIn11psa027","HIn11psa029","HIn11psa031","HIn11psa033",
                                               "HIn11psa036","HIn11psa038","HIn11psa039","HIn11psa011", "HIn11psa013", "HIn11psa015",
                                               "HIn11psa018","HIn11psa020","HIn11psa022","HIn11psa023","HIn11psa024","HIn11psa026",
                                                 "HIn11psa028", "HIn11psa030", "HIn11psa034","HIn11psa037","HIn11psa012", "HIn11psa014",
@@ -67,8 +67,10 @@ data3 %>% mutate(Mean_3=rowSums(cur_data()[,c("HIn11psa010", "HIn11psa021", "HIn
                                              "HCh12psa018","HCh12psa020","HCh12psa022","HCh12psa023","HCh12psa024","HCh12psa026",
                                              "HCh12psa028", "HCh12psa030", "HCh12psa034","HCh12psa037","HCh12psa012", "HCh12psa014", 
                                              "HCh12psa016","HCh12psa017","HCh12psa019","HCh12psa025","HCh12psa032","HCh12psa035"), na.rm=F])/30) -> data4
-#mean score
-data2 %>% mutate(M_inter3=rowSums(cur_data()[,c("HIn11psa010", "HIn11psa021", "HIn11psa027","HIn11psa029",
+}
+  #mean score
+{
+  data2 %>% mutate(M_inter3=rowSums(cur_data()[,c("HIn11psa010", "HIn11psa021", "HIn11psa027","HIn11psa029",
                                  "HIn11psa031","HIn11psa033","HIn11psa036","HIn11psa038","HIn11psa039")], na.rm=F)/9,
                  M_disr3=rowSums(cur_data()[,c("HIn11psa011", "HIn11psa013", "HIn11psa015","HIn11psa018",
                                        "HIn11psa020","HIn11psa022","HIn11psa023","HIn11psa024","HIn11psa026",
@@ -83,6 +85,7 @@ data2 %>% mutate(M_inter3=rowSums(cur_data()[,c("HIn11psa010", "HIn11psa021", "H
                                                 "HCh12psa028", "HCh12psa030", "HCh12psa034","HCh12psa037")], na.rm=F)/13,
                   M_disc4=rowSums(cur_data()[,c("HCh12psa012", "HCh12psa014", "HCh12psa016","HCh12psa017",
                                                 "HCh12psa019","HCh12psa025","HCh12psa032","HCh12psa035")], na.rm=F)/8) -> data3
+}
 
 #regression
 
@@ -98,3 +101,12 @@ summary(model_disconnection)
 #full mean model
 model <- lm(Mean_4 ~ Ttime + Mean_3, data=data4)
 summary(model)
+#final model
+model_inter <- lm(M_inter4 ~ Ttime + M_inter3, data=data3)
+summary(model_inter)
+#adding control variable
+model_inter.cont <- lm(M_inter4 ~ Ttime + M_inter3 + DHu10ses006 + DCh10dmg001, data=data3)
+summary(model_inter.cont) #숫자가 좀 많이 작게 나옴.. SES 때문인 거 같은데.
+model_inter.cont2 <- lm(M_inter4 ~ Ttime + M_inter3 + DHu10ses006 + DCh10dmg001, data=data3)
+summary(model_inter.cont2) #그렇네, SES 데이터 전처리 해주기_좀 튀는 값이니까... grand mean 해도 될듯
+scale(data3[,"DHu10ses006"], center = T) -> data3[,"DHu10ses006"]
